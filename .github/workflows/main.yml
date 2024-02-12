@@ -1,0 +1,36 @@
+name: Automatic Versioning
+
+on:
+  push:
+    branches:
+      - main  # or your default branch
+
+jobs:
+  versioning:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install bump2version
+          
+      - name: Bump Version
+        run: |
+          VERSION=$(cat VERSION)
+          echo "Current version: $VERSION"
+          bump2version patch --current-version $VERSION VERSION --allow-dirty
+          NEW_VERSION=$(cat VERSION)
+          echo "New version: $NEW_VERSION"
+          git config --global user.email "waseem.uvce@gmail.com"
+          git config --global user.name "Waseem"
+          git commit -am "Bump version to $NEW_VERSION"
+          git tag $NEW_VERSION
+          git push && git push --tags
