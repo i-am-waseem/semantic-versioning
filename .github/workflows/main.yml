@@ -22,15 +22,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install bump2version
           
-      - name: Bump Version
+      - name: Bump Version and Push
         run: |
-          VERSION=$(cat VERSION)
-          echo "Current version: $VERSION"
-          bump2version patch --current-version $VERSION VERSION --allow-dirty
-          NEW_VERSION=$(cat VERSION)
-          echo "New version: $NEW_VERSION"
           git config --global user.email "waseem.uvce@gmail.com"
           git config --global user.name "Waseem"
           git commit -am "Bump version to $NEW_VERSION"
           git tag $NEW_VERSION
-          git push && git push --tags
+          # Use the PAT for pushing
+          git push --set-upstream https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/i-am-waseem/semantic-versioning.git main
+          git push --tags --set-upstream https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/i-am-waseem/semantic-versioning.git main
+
