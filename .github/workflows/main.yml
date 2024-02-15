@@ -1,34 +1,28 @@
-name: Automatic Versioning
+name: Release
 
 on:
   push:
     branches:
-      - main  # or your default branch
+      - main
 
 jobs:
-  versioning:
+  release:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Ensures the entire git history is checked out
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
+          python-version: '3.8'
 
       - name: Install Dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install bump2version
-          
-      - name: Bump Version and Push
-        run: |
-          git config --global user.email "waseem.uvce@gmail.com"
-          git config --global user.name "Waseem"
-          git commit -am "Bump version to $NEW_VERSION"
-          git tag $NEW_VERSION
-          # Use the PAT for pushing
-          git push --set-upstream https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/i-am-waseem/semantic-versioning.git main
-          git push --tags --set-upstream https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/i-am-waseem/semantic-versioning.git main
+          pip install -r requirements.txt
 
+      - name: Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: semantic-release publish
